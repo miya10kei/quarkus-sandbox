@@ -5,30 +5,19 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
 @ApplicationScoped
 public class OrderRepository {
-  private final EntityManager entityManager;
-
-  @Inject
-  public OrderRepository(EntityManager entityManager) {
-    this.entityManager = entityManager;
-  }
 
   public List<Orders> findAll(Long customerId) {
-    return entityManager
-        .createNamedQuery("Orders.findAll", Orders.class)
-        .setParameter("customerId", customerId)
-        .getResultList();
+    return Orders.list("id", customerId);
   }
 
   public Orders findOrderById(Long id) {
-    var order = entityManager.find(Orders.class, id);
+    Orders order = Orders.findById(id);
     return Optional.ofNullable(order)
         .orElseThrow(
             () ->
@@ -47,12 +36,12 @@ public class OrderRepository {
   @Transactional
   public void createOrder(Orders orders, Customer customer) {
     orders.setCustomer(customer);
-    entityManager.persist(orders);
+    orders.persist();
   }
 
   @Transactional
   public void deleteOrder(Long id) {
     var order = findOrderById(id);
-    entityManager.remove(order);
+    order.delete();
   }
 }

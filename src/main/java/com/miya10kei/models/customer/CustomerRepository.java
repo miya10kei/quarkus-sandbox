@@ -1,10 +1,10 @@
 package com.miya10kei.models.customer;
 
+import io.quarkus.panache.common.Sort;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.WebApplicationException;
@@ -12,19 +12,14 @@ import javax.ws.rs.core.Response.Status;
 
 @ApplicationScoped
 public class CustomerRepository {
-  private final EntityManager entityManager;
-
-  @Inject
-  public CustomerRepository(EntityManager entityManager) {
-    this.entityManager = entityManager;
-  }
+  public CustomerRepository(EntityManager entityManager) {}
 
   public List<Customer> findAll() {
-    return entityManager.createNamedQuery("Customer.findAll", Customer.class).getResultList();
+    return Customer.listAll(Sort.by("id"));
   }
 
   public Customer findCustomerById(Long id) {
-    var customer = entityManager.find(Customer.class, id);
+    Customer customer = Customer.findById(id);
     return Optional.ofNullable(customer)
         .orElseThrow(
             () ->
@@ -42,12 +37,12 @@ public class CustomerRepository {
 
   @Transactional
   public void createCustomer(Customer customer) {
-    entityManager.persist(customer);
+    customer.persist();
   }
 
   @Transactional
   public void deleteCustomer(Long customerId) {
     var customer = findCustomerById(customerId);
-    entityManager.remove(customer);
+    customer.delete();
   }
 }

@@ -1,6 +1,7 @@
 package com.miya10kei.models.customer;
 
 import com.miya10kei.models.order.Orders;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import java.util.List;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Column;
@@ -10,17 +11,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.QueryHint;
 import javax.persistence.SequenceGenerator;
 import lombok.Data;
 
 @Data
 @Entity
-@NamedQuery(
-    name = "Customer.findAll",
-    query = "SELECT c FROM Customer c ORDER BY c.id",
-    hints = @QueryHint(name = "org.hibernate.cacheable", value = "true"))
-public class Customer {
+@NamedQuery(name = "Customer.findAll", query = "SELECT c FROM Customer c ORDER BY c.id")
+public class Customer extends PanacheEntityBase {
   @Id
   @SequenceGenerator(name = "customerSequence", sequenceName = "customerId_seq", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customerSequence")
