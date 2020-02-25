@@ -16,6 +16,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 
 @Path("customers")
 @ApplicationScoped
@@ -30,6 +33,11 @@ public class CustomerEndpoint {
   }
 
   @GET
+  @Counted(description = "Customer list count", absolute = true)
+  @Timed(
+      name = "timeCheck",
+      description = "How much time is it takes to lode the Customer list",
+      unit = MetricUnits.MILLISECONDS)
   public List<Customer> getAll() {
     return customerRepository.findAll();
   }

@@ -1,8 +1,8 @@
 package com.miya10kei.interfaces;
 
 import com.miya10kei.models.customer.CustomerRepository;
-import com.miya10kei.models.order.Orders;
 import com.miya10kei.models.order.OrderRepository;
+import com.miya10kei.models.order.Orders;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,6 +18,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
 
 @Path("orders")
 @ApplicationScoped
@@ -35,6 +37,7 @@ public class OrderEndpoint {
 
   @GET
   public List<Orders> getAll(@QueryParam("customerId") Long customerId) {
+    highestNumberOfOrder();
     return orderRepository.findAll(customerId);
   }
 
@@ -57,5 +60,12 @@ public class OrderEndpoint {
   public Response delete(@PathParam("orderId") Long orderId) {
     orderRepository.deleteOrder(orderId);
     return Response.status(Status.NO_CONTENT).build();
+  }
+
+  //  @GET
+  //  @Path("/count")
+  @Gauge(name = "peekOfOrders", unit = MetricUnits.NONE, description = "Highest number of orders")
+  public Number highestNumberOfOrder() {
+    return orderRepository.countAll();
   }
 }
